@@ -87,7 +87,7 @@ def get_reward(action, deadlock_flag):
         return 0
 """
 
-def get_reward(environment, action, deadlock_flag):
+def get_reward(environment, action, deadlock_flag, iteration_flag):
     source = action.split('-')[0]
     destination = action.split('-')[1]
     if destination == 'o_':
@@ -95,7 +95,7 @@ def get_reward(environment, action, deadlock_flag):
     elif deadlock_flag > 15:
         return -100
     else:
-        return -environment.stations[source]['next'][destination[:2]]
+        return -iteration_flag
 
 
 def show_state(stations):
@@ -181,6 +181,7 @@ def episode(environment, agent, random_prob, decay):
     counter = 0
     cumulated_work = 0
     deadlock_flag = 0
+    iteration_flag = environment.iteration
     while counter < 2000:
         # Get new state
         next_state_code = environment.state_code
@@ -191,7 +192,7 @@ def episode(environment, agent, random_prob, decay):
         if next_actions:
             # show_state(environment.state)
             # Get reward in new state
-            reward = get_reward(environment, action, deadlock_flag)
+            reward = get_reward(environment, action, deadlock_flag, iteration_flag)
             if reward == 100:
                 cumulated_work += 1
 
@@ -207,9 +208,12 @@ def episode(environment, agent, random_prob, decay):
             # Interact with environment
             environment.interact(action)
             random_prob = max(random_prob * decay, 0.05)
+
             deadlock_flag = 0
+            iteration_flag = environment.iteration
         else:
             deadlock_flag += 1
+            iteration_flag += 1
 
         # Return while deadlock
         if deadlock_flag > 15:
