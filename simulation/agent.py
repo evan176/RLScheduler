@@ -53,9 +53,9 @@ class TaskScheduler(object):
         self.saver.restore(self.session, self.ckpt_file)
 
     def get_loss(self, x, rewards, next_x):
-        values = self._get_next_value(next_x, rewards)
+        next_values = self._get_next_value(next_x, rewards)
         loss_value = self.session.run(self.loss_op, feed_dict={
-            self.x: x, self.reward: rewards, self.next_value: values
+            self.x: x, self.reward: rewards, self.next_value: next_values
         })
         return loss_value
 
